@@ -11,6 +11,9 @@ try:
     from urllib2 import urlopen
 except ImportError:
     from urllib.request import urlopen
+    
+#edited to prevent seek exception
+from PIL import Image
 
 import cartopy.crs as ccrs
 from cartopy.mpl.geoaxes import GeoAxes,GeoAxesSubplot
@@ -95,9 +98,12 @@ def addLayer(imgObj,ax,dims=None,region=None,cmap=None,visParams=None):
 
     url = imgObj.getThumbUrl(args)
     img = urlopen(url)
-    a = plt.imread(img)
+    
+    PILImage = Image.open(img)
+    PILImage_c = PILImage.convert("RGB")
+    imgarr = np.array(PILImage_c) 
 
-    ax.imshow(a, extent=viewExtent,origin='upper',transform=ccrs.PlateCarree())
+    ax.imshow(imgarr, extent=viewExtent,origin='upper',transform=ccrs.PlateCarree())
 
     return ax
 
