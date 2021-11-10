@@ -12,8 +12,10 @@ try:
 except ImportError:
     from urllib.request import urlopen
     
-#edited to prevent seek exception
+#edited by Anang to prevent seek exception
+import urllib.request
 from PIL import Image
+
 
 import cartopy.crs as ccrs
 from cartopy.mpl.geoaxes import GeoAxes,GeoAxesSubplot
@@ -97,11 +99,14 @@ def addLayer(imgObj,ax,dims=None,region=None,cmap=None,visParams=None):
             args[key] = visParams[key]
 
     url = imgObj.getThumbUrl(args)
+    #print(url)
     img = urlopen(url)
+    #urllib.request.urlretrieve(url, "temp.png")
     
     PILImage = Image.open(img)
     PILImage_c = PILImage.convert("RGB")
     imgarr = np.array(PILImage_c) 
+    #a = plt.imread(imgarr)
 
     ax.imshow(imgarr, extent=viewExtent,origin='upper',transform=ccrs.PlateCarree())
 
@@ -230,9 +235,10 @@ def addColorbar(ax,loc=None,visParams=None,discrete=False,**kwargs):
 
         else:
             raise ValueError('cmap keyword or "palette" key in visParams must be provided')
-
-    cb = mpl.colorbar.ColorbarBase(cax,norm=norm,alpha=alpha,
-                                    **kwargs)
+    
+    
+    cmap_new=mpl.cm.get_cmap(name=kwargs['cmap'])
+    cb = mpl.colorbar.ColorbarBase(cax,norm=norm,alpha=alpha, cmap=cmap_new)
 
     if 'bands' in visKeys:
         cb.set_label(visParams['bands'])
